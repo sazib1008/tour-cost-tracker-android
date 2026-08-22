@@ -375,15 +375,10 @@ private fun EmptyToursView(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(BrandPrimary.copy(alpha = 0.1f)),
+                    .background(BrandPrimary.copy(alpha = 0.08f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    Icons.Default.Group,
-                    contentDescription = null,
-                    tint = BrandPrimary,
-                    modifier = Modifier.size(32.dp)
-                )
+                com.example.tripzyfrontend.ui.common.TripzyIcon(size = 44.dp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -1,9 +1,11 @@
 package com.example.tripzyfrontend.ui.common
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,10 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tripzyfrontend.R
 import com.example.tripzyfrontend.domain.model.Money
 import com.example.tripzyfrontend.domain.model.TourStatus
 import com.example.tripzyfrontend.ui.theme.BalanceNegative
@@ -42,6 +47,30 @@ import com.example.tripzyfrontend.ui.theme.TagPersonalBg
 import com.example.tripzyfrontend.ui.theme.TagPersonalText
 import com.example.tripzyfrontend.ui.theme.TagSharedBg
 import com.example.tripzyfrontend.ui.theme.TagSharedText
+
+@Composable
+fun TripzyLogo(
+    modifier: Modifier = Modifier,
+    height: Dp = 48.dp
+) {
+    Image(
+        painter = painterResource(id = R.drawable.ic_tripzy_logo),
+        contentDescription = "Tripzy Logo",
+        modifier = modifier.height(height)
+    )
+}
+
+@Composable
+fun TripzyIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 40.dp
+) {
+    Image(
+        painter = painterResource(id = R.drawable.ic_tripzy_icon),
+        contentDescription = "Tripzy Icon",
+        modifier = modifier.size(size)
+    )
+}
 
 @Composable
 fun AmountText(

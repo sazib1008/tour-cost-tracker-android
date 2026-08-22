@@ -47,7 +47,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.tripzyfrontend.navigation.Screen
+import com.example.tripzyfrontend.ui.common.TripzyLogo
 import com.example.tripzyfrontend.ui.theme.BrandPrimary
+import com.example.tripzyfrontend.ui.theme.BrandSecondary
 
 @Composable
 fun AuthScreen(
@@ -85,46 +87,22 @@ fun AuthScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 32.dp),
+                    .padding(horizontal = 24.dp, vertical = 28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Header & Branding
+                // Header & Full Brand Logo (2nd SVG)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(top = 24.dp)
+                    modifier = Modifier.padding(top = 16.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(72.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(BrandPrimary.copy(alpha = 0.1f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AccountBalanceWallet,
-                            contentDescription = null,
-                            tint = BrandPrimary,
-                            modifier = Modifier.size(40.dp)
-                        )
-                    }
+                    TripzyLogo(height = 48.dp)
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Tripzy",
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            fontSize = 36.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "Tour Cost Tracker & Debt Settlement",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = "Tour Expense & Settlement Tracker",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
@@ -137,16 +115,19 @@ fun AuthScreen(
                 ) {
                     FeatureRow(
                         icon = Icons.AutoMirrored.Filled.ReceiptLong,
+                        iconTint = BrandPrimary,
                         title = "Split Expenses Fairly",
                         subtitle = "Multi-payer bills, equal or custom splits with exact paisa precision."
                     )
                     FeatureRow(
                         icon = Icons.Default.AccountBalanceWallet,
+                        iconTint = BrandSecondary,
                         title = "Instant Net Balances",
                         subtitle = "Personal expenses stay isolated. See who owes whom in 2 seconds."
                     )
                     FeatureRow(
                         icon = Icons.Default.Group,
+                        iconTint = BrandPrimary,
                         title = "Minimal Debt Settlement",
                         subtitle = "Settle group debts in the fewest possible bKash/Nagad transactions."
                     )
@@ -206,6 +187,7 @@ fun AuthScreen(
 @Composable
 private fun FeatureRow(
     icon: ImageVector,
+    iconTint: Color,
     title: String,
     subtitle: String
 ) {
@@ -225,13 +207,13 @@ private fun FeatureRow(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(BrandPrimary.copy(alpha = 0.12f)),
+                    .background(iconTint.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = BrandPrimary,
+                    tint = iconTint,
                     modifier = Modifier.size(22.dp)
                 )
             }

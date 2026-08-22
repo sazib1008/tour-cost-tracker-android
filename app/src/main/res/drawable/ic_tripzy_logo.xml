@@ -1,0 +1,93 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="320dp"
+    android:height="80dp"
+    android:viewportWidth="320"
+    android:viewportHeight="80">
+
+    <!-- Group: Icon Mark -->
+    <group android:name="logo_icon">
+        <!-- Left Wing & Stem (Teal) -->
+        <path
+            android:fillColor="#008EA5"
+            android:pathData="M 40.5,19.0
+                              C 29.5,19.2 21.2,21.0 17.2,23.7
+                              C 14.8,25.3 14.8,29.8 17.4,31.6
+                              C 19.3,32.8 22.0,32.8 25.7,32.8
+                              L 33.6,32.8
+                              L 33.6,56.0
+                              C 33.6,60.4 37.1,64.0 41.5,64.0
+                              C 45.9,64.0 49.4,60.4 49.4,56.0
+                              L 49.4,32.8
+                              L 40.5,32.8
+                              Z" />
+
+        <!-- Right Wing (Royal Blue) -->
+        <path
+            android:fillColor="#2F7BF6"
+            android:pathData="M 41.5,19.0
+                              C 52.5,19.2 60.8,21.0 64.8,23.7
+                              C 67.2,25.3 67.2,29.8 64.6,31.6
+                              C 62.7,32.8 60.0,32.8 56.3,32.8
+                              L 41.5,32.8
+                              Z" />
+    </group>
+
+    <!-- Group: Wordmark 'Trip' (Teal) -->
+    <group android:name="wordmark_trip">
+        <!-- T -->
+        <path
+            android:fillColor="#008EA5"
+            android:pathData="M 80.0,23.0 L 105.0,23.0 L 105.0,30.5 L 96.5,30.5 L 96.5,57.0 L 88.5,57.0 L 88.5,30.5 L 80.0,30.5 Z" />
+
+        <!-- r -->
+        <path
+            android:fillColor="#008EA5"
+            android:pathData="M 111.0,33.5 L 118.5,33.5 L 118.5,38.0 C 121.2,34.8 125.5,33.2 129.5,33.8 L 128.5,41.2 C 124.5,40.6 119.5,41.8 118.5,46.0 L 118.5,57.0 L 111.0,57.0 Z" />
+
+        <!-- i (dot + stem) -->
+        <path
+            android:fillColor="#008EA5"
+            android:pathData="M 136.5,22.0 C 139.0,22.0 141.0,24.0 141.0,26.5 C 141.0,29.0 139.0,31.0 136.5,31.0 C 134.0,31.0 132.0,29.0 132.0,26.5 C 132.0,24.0 134.0,22.0 136.5,22.0 Z
+                              M 132.5,33.5 L 140.5,33.5 L 140.5,57.0 L 132.5,57.0 Z" />
+
+        <!-- p -->
+        <path
+            android:fillColor="#008EA5"
+            android:pathData="M 148.0,33.5 L 155.5,33.5 L 155.5,37.2 C 158.0,34.5 162.0,33.0 166.5,33.0 C 174.5,33.0 180.0,39.2 180.0,47.5 C 180.0,55.8 174.5,62.0 166.5,62.0 C 162.0,62.0 158.0,60.5 155.5,57.8 L 155.5,68.0 L 148.0,68.0 Z
+                              M 155.5,47.5 C 155.5,52.2 158.5,55.2 164.0,55.2 C 169.5,55.2 172.5,52.2 172.5,47.5 C 172.5,42.8 169.5,39.8 164.0,39.8 C 158.5,39.8 155.5,42.8 155.5,47.5 Z" />
+    </group>
+
+    <!-- Group: Wordmark 'zy' (Royal Blue) -->
+    <group android:name="wordmark_zy">
+        <!-- z -->
+        <path
+            android:fillColor="#2F7BF6"
+            android:pathData="M 188.0,33.5 L 209.0,33.5 L 209.0,40.0 L 196.5,50.2 L 209.5,50.2 L 209.5,57.0 L 188.0,57.0 L 188.0,50.2 L 201.0,40.0 L 188.0,40.0 Z" />
+
+        <!-- y -->
+        <path
+            android:fillColor="#2F7BF6"
+            android:pathData="M 215.0,33.5 L 223.0,33.5 L 228.8,49.0 L 234.5,33.5 L 242.5,33.5 L 232.5,58.0 C 230.0,64.2 225.5,68.0 218.5,68.0 L 214.0,68.0 L 214.0,61.5 L 217.5,61.5 C 221.0,61.5 223.2,59.8 224.8,55.8 L 215.0,33.5 Z" />
+    </group>
+
+    <!-- Dynamic Swoosh Curve Underline with Gradient -->
+    <path
+        android:pathData="M 76.0,68.0
+                          C 120.0,72.5 175.0,74.5 275.0,68.0
+                          C 275.0,70.5 175.0,76.5 76.0,72.5
+                          Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="76.0"
+                android:startY="72.0"
+                android:endX="275.0"
+                android:endY="72.0"
+                android:type="linear">
+                <item android:color="#008EA5" android:offset="0.0" />
+                <item android:color="#2F7BF6" android:offset="0.6" />
+                <item android:color="#002F7BF6" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>
