@@ -1,10 +1,15 @@
 package com.example.tripzyfrontend.ui.common
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -180,3 +185,119 @@ fun ExpenseTypeBadge(
         )
     }
 }
+
+/**
+ * Stitch Glassmorphism Card:
+ * Translucent container with soft border, elevated backdrop feel, and optional click behavior.
+ */
+@Composable
+fun GlassCard(
+    modifier: Modifier = Modifier,
+    shape: RoundedCornerShape = RoundedCornerShape(16.dp),
+    backgroundColor: Color = com.example.tripzyfrontend.ui.theme.MidnightSurfaceContainer.copy(alpha = 0.75f),
+    borderColor: Color = com.example.tripzyfrontend.ui.theme.GlassBorder,
+    borderWidth: Dp = 1.dp,
+    onClick: (() -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    val cardModifier = if (onClick != null) {
+        modifier
+            .clip(shape)
+            .background(backgroundColor)
+            .border(BorderStroke(borderWidth, borderColor), shape)
+            .clickable { onClick() }
+    } else {
+        modifier
+            .clip(shape)
+            .background(backgroundColor)
+            .border(BorderStroke(borderWidth, borderColor), shape)
+    }
+
+    Box(modifier = cardModifier) {
+        content()
+    }
+}
+
+/**
+ * Stitch Glowing Progress Bar:
+ * Sleek thin track with vibrant gradient progress indicator for budget and trip status.
+ */
+@Composable
+fun GlowingProgressBar(
+    progress: Float, // 0f to 1f
+    modifier: Modifier = Modifier,
+    trackColor: Color = Color(0x33FFFFFF),
+    progressBrush: androidx.compose.ui.graphics.Brush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+        listOf(com.example.tripzyfrontend.ui.theme.BrandPrimary, com.example.tripzyfrontend.ui.theme.NeonTeal)
+    ),
+    height: Dp = 6.dp
+) {
+    val clampedProgress = progress.coerceIn(0f, 1f)
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height)
+            .clip(RoundedCornerShape(percent = 50))
+            .background(trackColor)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(clampedProgress)
+                .height(height)
+                .clip(RoundedCornerShape(percent = 50))
+                .background(progressBrush)
+        )
+    }
+}
+
+/**
+ * Stitch StatCard:
+ * 3-column compact metric item used in Profile and Dashboards.
+ */
+@Composable
+fun StatCard(
+    title: String,
+    value: String,
+    subtitle: String? = null,
+    valueColor: Color = MaterialTheme.colorScheme.onSurface,
+    modifier: Modifier = Modifier
+) {
+    GlassCard(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp, horizontal = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                ),
+                color = valueColor
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (subtitle != null) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = com.example.tripzyfrontend.ui.theme.BalancePositive
+                )
+            }
+        }
+    }
+}
+

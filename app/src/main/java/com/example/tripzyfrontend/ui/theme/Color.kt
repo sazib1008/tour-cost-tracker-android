@@ -16,52 +16,66 @@ val BrandSecondaryDark = Color(0xFF1B62D6)
 val BrandGradientBrush = Brush.horizontalGradient(
     colors = listOf(BrandPrimary, BrandSecondary)
 )
-val BrandTealTint = Color(0xFFE0F4F7)
-val BrandBlueTint = Color(0xFFEBF3FE)
+// Balance Roles (Dark Midnight Translucent Tints)
+val BalancePositive = Color(0xFF10B981) // Emerald: "You'll receive"
+val BalancePositiveBg = Color(0x2E10B981)
+val BalancePositiveDark = Color(0xFF059669)
 
-// Balance Roles (Crucial for instant scannability & financial trust)
-val BalancePositive = Color(0xFF059669) // Emerald: "You'll receive"
-val BalancePositiveBg = Color(0xFFECFDF5)
-val BalancePositiveDark = Color(0xFF047857)
+val BalanceNegative = Color(0xFFEF4444) // Crimson: "You owe"
+val BalanceNegativeBg = Color(0x2EEF4444)
+val BalanceNegativeDark = Color(0xFFDC2626)
 
-val BalanceNegative = Color(0xFFDC2626) // Crimson: "You owe"
-val BalanceNegativeBg = Color(0xFFFEF2F2)
-val BalanceNegativeDark = Color(0xFFB91C1C)
-
-val BalanceZero = Color(0xFF64748B) // Slate: "Settled"
-val BalanceZeroBg = Color(0xFFF1F5F9)
+val BalanceZero = Color(0xFF94A3B8) // Slate: "Settled"
+val BalanceZeroBg = Color(0x2E64748B)
 
 // Expense Type Tags
-val TagPersonalText = Color(0xFFD97706)
-val TagPersonalBg = Color(0xFFFEF3C7)
+val TagPersonalText = Color(0xFFFBBF24)
+val TagPersonalBg = Color(0x2EF59E0B)
 
-val TagSharedText = Color(0xFF008EA5)
-val TagSharedBg = Color(0xFFE0F4F7)
+val TagSharedText = Color(0xFF6DD4ED)
+val TagSharedBg = Color(0x2E008EA5)
 
 // Tour Lifecycle Status Colors
-val StatusActiveText = Color(0xFF008EA5)
-val StatusActiveBg = Color(0xFFE0F4F7)
+val StatusActiveText = Color(0xFF6DD4ED)
+val StatusActiveBg = Color(0x2E008EA5)
 
-val StatusSettledText = Color(0xFF059669)
-val StatusSettledBg = Color(0xFFD1FAE5)
+val StatusSettledText = Color(0xFF10B981)
+val StatusSettledBg = Color(0x2E10B981)
 
-val StatusArchivedText = Color(0xFF64748B)
-val StatusArchivedBg = Color(0xFFF1F5F9)
+val StatusArchivedText = Color(0xFF94A3B8)
+val StatusArchivedBg = Color(0x2E64748B)
 
-// Neutral Foundation (Light Mode)
-val LightBackground = Color(0xFFF8FAFC)
-val LightSurface = Color(0xFFFFFFFF)
-val LightSurfaceVariant = Color(0xFFF1F5F9)
-val LightTextPrimary = Color(0xFF0F172A)
-val LightTextSecondary = Color(0xFF475569)
-val LightTextTertiary = Color(0xFF94A3B8)
-val LightBorder = Color(0xFFE2E8F0)
 
 // Neutral Foundation (Dark Mode)
-val DarkBackground = Color(0xFF090E17)
-val DarkSurface = Color(0xFF111A29)
-val DarkSurfaceVariant = Color(0xFF1B283D)
-val DarkTextPrimary = Color(0xFFF8FAFC)
-val DarkTextSecondary = Color(0xFF94A3B8)
-val DarkTextTertiary = Color(0xFF64748B)
-val DarkBorder = Color(0xFF283A52)
+val DarkBackground = Color(0xFF0B1326) // Stitch Midnight canvas
+val DarkSurface = Color(0xFF0B1326)
+val DarkSurfaceVariant = Color(0xFF2D3449)
+val DarkTextPrimary = Color(0xFFDAE2FD)
+val DarkTextSecondary = Color(0xFFBDC8CC)
+val DarkTextTertiary = Color(0xFF879396)
+val DarkBorder = Color(0xFF3E494C)
+
+// Stitch Midnight Design System Containers
+val MidnightBackground = Color(0xFF0B1326)
+val MidnightSurfaceLowest = Color(0xFF060E20)
+val MidnightSurfaceLow = Color(0xFF131B2E)
+val MidnightSurfaceContainer = Color(0xFF171F33)
+val MidnightSurfaceHigh = Color(0xFF222A3D)
+val MidnightSurfaceHighest = Color(0xFF2D3449)
+val MidnightSurfaceBright = Color(0xFF31394D)
+
+// Glassmorphism Tokens
+val GlassBorder = Color(0x26FFFFFF) // 15% white border
+val GlassBorderTeal = Color(0x66008EA5) // Teal accent border
+val GlassSurfaceDark = Color(0xB3171F33) // 70% midnight container
+val GlassSurfaceCard = Color(0x99222A3D) // 60% high container
+
+val NeonTeal = Color(0xFF6DD4ED)
+val NeonBlue = Color(0xFFAEC6FF)
+
+val PrimaryCtaGradient = Brush.horizontalGradient(
+    colors = listOf(Color(0xFF008EA5), Color(0xFF2F7BF6))
+)
+val GlassCardGradient = Brush.linearGradient(
+    colors = listOf(Color(0x2E008EA5), Color(0x1A2F7BF6))
+)

@@ -1,7 +1,7 @@
 package com.example.tripzyfrontend.ui.screens.settlement
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Paid
@@ -34,8 +35,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -76,8 +75,13 @@ import com.example.tripzyfrontend.domain.model.SettlementTransaction
 import com.example.tripzyfrontend.domain.model.TourMember
 import com.example.tripzyfrontend.domain.model.TourStatus
 import com.example.tripzyfrontend.ui.common.AmountText
+import com.example.tripzyfrontend.ui.common.GlassCard
 import com.example.tripzyfrontend.ui.common.StatusBadge
+import com.example.tripzyfrontend.ui.theme.BalancePositive
 import com.example.tripzyfrontend.ui.theme.BrandPrimary
+import com.example.tripzyfrontend.ui.theme.GlassBorderTeal
+import com.example.tripzyfrontend.ui.theme.MidnightSurfaceContainer
+import com.example.tripzyfrontend.ui.theme.NeonTeal
 import com.example.tripzyfrontend.ui.theme.StatusArchivedBg
 import com.example.tripzyfrontend.ui.theme.StatusArchivedText
 import com.example.tripzyfrontend.ui.theme.StatusSettledBg
@@ -107,10 +111,29 @@ fun SettlementScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Settlement History", fontWeight = FontWeight.Bold) },
+                title = {
+                    Column {
+                        Text(
+                            "Settlements",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        if (uiState is SettlementUiState.Success) {
+                            Text(
+                                (uiState as SettlementUiState.Success).tour.title,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                 },
                 actions = {
@@ -180,15 +203,13 @@ fun SettlementScreen(
                         .padding(paddingValues)
                 ) {
                     if (isArchived) {
-                        Card(
-                            shape = RoundedCornerShape(0.dp),
-                            colors = CardDefaults.cardColors(containerColor = StatusArchivedBg),
-                            modifier = Modifier.fillMaxWidth()
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(StatusArchivedBg)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.Lock, contentDescription = null, tint = StatusArchivedText, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
@@ -201,15 +222,13 @@ fun SettlementScreen(
                     }
 
                     if (state.tour.status == TourStatus.SETTLED) {
-                        Card(
-                            shape = RoundedCornerShape(0.dp),
-                            colors = CardDefaults.cardColors(containerColor = StatusSettledBg),
-                            modifier = Modifier.fillMaxWidth()
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(StatusSettledBg)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.CheckCircle, contentDescription = null, tint = StatusSettledText, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
@@ -221,40 +240,101 @@ fun SettlementScreen(
                         }
                     }
 
-                    if (state.settlements.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(
-                                    Icons.Default.Paid,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                    modifier = Modifier.size(48.dp)
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = "No settlements recorded yet",
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = if (isArchived) "No settlement payments were made." else "When members pay each other, record payments here.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                    LazyColumn(
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        // Smart Debt Optimization Insight Banner
+                        item {
+                            GlassCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                borderColor = GlassBorderTeal,
+                                shape = RoundedCornerShape(18.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(18.dp)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(34.dp)
+                                                .clip(CircleShape)
+                                                .background(BrandPrimary.copy(alpha = 0.2f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                Icons.Default.AutoAwesome,
+                                                contentDescription = null,
+                                                tint = NeonTeal,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Column {
+                                            Text(
+                                                "SMART DEBT OPTIMIZATION",
+                                                style = MaterialTheme.typography.labelSmall.copy(
+                                                    fontWeight = FontWeight.Bold,
+                                                    letterSpacing = 1.sp
+                                                ),
+                                                color = NeonTeal
+                                            )
+                                            Text(
+                                                "Active: Pairwise transfers simplified",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(14.dp))
+
+                                    if (!isArchived) {
+                                        Button(
+                                            onClick = { showRecordDialog = true },
+                                            shape = RoundedCornerShape(10.dp),
+                                            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Icon(Icons.Default.Paid, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Record a Settlement Payment", fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
                             }
                         }
-                    } else {
-                        LazyColumn(
-                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.fillMaxSize()
-                        ) {
+
+                        if (state.settlements.isEmpty()) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(32.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Icon(
+                                            Icons.Default.Paid,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                            modifier = Modifier.size(48.dp)
+                                        )
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        Text(
+                                            text = "No settlements recorded yet",
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onBackground
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = if (isArchived) "No settlement payments were made." else "When members pay each other, record payments here.",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
                             item {
                                 Text(
                                     text = "Completed Payments (${state.settlements.size})",
@@ -264,7 +344,7 @@ fun SettlementScreen(
                             }
 
                             items(state.settlements, key = { it.id }) { settlement ->
-                                SettlementCard(settlement = settlement)
+                                SettlementGlassCard(settlement = settlement)
                             }
                         }
                     }
@@ -290,12 +370,10 @@ fun SettlementScreen(
 }
 
 @Composable
-private fun SettlementCard(settlement: SettlementTransaction) {
-    Card(
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
-        modifier = Modifier.fillMaxWidth()
+private fun SettlementGlassCard(settlement: SettlementTransaction) {
+    GlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -312,7 +390,7 @@ private fun SettlementCard(settlement: SettlementTransaction) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -332,7 +410,7 @@ private fun SettlementCard(settlement: SettlementTransaction) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = null,
-                        tint = BrandPrimary,
+                        tint = NeonTeal,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -346,14 +424,14 @@ private fun SettlementCard(settlement: SettlementTransaction) {
                 AmountText(
                     money = settlement.amount,
                     style = MaterialTheme.typography.titleLarge,
-                    color = BrandPrimary
+                    color = BalancePositive
                 )
             }
 
             if (!settlement.note.isNullOrBlank() || !settlement.transactionRef.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 if (!settlement.note.isNullOrBlank()) {
                     Text(
@@ -380,21 +458,21 @@ private fun MethodBadge(method: PaymentMethod) {
         PaymentMethod.CASH -> "Cash"
         PaymentMethod.BKASH -> "bKash"
         PaymentMethod.NAGAD -> "Nagad"
-        PaymentMethod.BANK_TRANSFER -> "Bank"
+        PaymentMethod.BANK_TRANSFER -> "Bank Transfer"
     }
 
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(BrandPrimary.copy(alpha = 0.12f))
+            .clip(RoundedCornerShape(6.dp))
+            .background(BrandPrimary.copy(alpha = 0.15f))
             .padding(horizontal = 8.dp, vertical = 3.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Payment, contentDescription = null, tint = BrandPrimary, modifier = Modifier.size(12.dp))
+            Icon(Icons.Default.Payment, contentDescription = null, tint = NeonTeal, modifier = Modifier.size(12.dp))
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = BrandPrimary)
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = NeonTeal)
             )
         }
     }
@@ -417,26 +495,33 @@ private fun RecordSettlementDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Record Settlement Payment", fontWeight = FontWeight.Bold) },
+        containerColor = MidnightSurfaceContainer,
+        title = {
+            Text(
+                "Record Settlement Payment",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
         text = {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Payer (From) Selector
-                Text("Who Paid? (Debtor):", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
+                Text("Who Paid? (Debtor):", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onSurface)
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     members.forEach { m ->
                         val isSelected = fromUserId == m.userId
                         OutlinedCard(
                             shape = RoundedCornerShape(8.dp),
-                            border = BorderStroke(if (isSelected) 2.dp else 1.dp, if (isSelected) BrandPrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+                            border = androidx.compose.foundation.BorderStroke(if (isSelected) 2.dp else 1.dp, if (isSelected) BrandPrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                             modifier = Modifier.fillMaxWidth().clickable { fromUserId = m.userId }
                         ) {
                             Text(
                                 text = if (m.userId == currentUserId) "${m.name} (You)" else m.name,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = if (isSelected) BrandPrimary else MaterialTheme.colorScheme.onSurface,
+                                color = if (isSelected) NeonTeal else MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(10.dp)
                             )
                         }
@@ -444,19 +529,19 @@ private fun RecordSettlementDialog(
                 }
 
                 // Receiver (To) Selector
-                Text("Paid To? (Creditor):", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
+                Text("Paid To? (Creditor):", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onSurface)
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     members.filter { it.userId != fromUserId }.forEach { m ->
                         val isSelected = toUserId == m.userId
                         OutlinedCard(
                             shape = RoundedCornerShape(8.dp),
-                            border = BorderStroke(if (isSelected) 2.dp else 1.dp, if (isSelected) BrandPrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+                            border = androidx.compose.foundation.BorderStroke(if (isSelected) 2.dp else 1.dp, if (isSelected) BrandPrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                             modifier = Modifier.fillMaxWidth().clickable { toUserId = m.userId }
                         ) {
                             Text(
                                 text = m.name,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = if (isSelected) BrandPrimary else MaterialTheme.colorScheme.onSurface,
+                                color = if (isSelected) NeonTeal else MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(10.dp)
                             )
                         }
@@ -475,7 +560,7 @@ private fun RecordSettlementDialog(
                 )
 
                 // Method
-                Text("Payment Method:", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
+                Text("Payment Method:", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onSurface)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -486,8 +571,8 @@ private fun RecordSettlementDialog(
                             onClick = { selectedMethod = method },
                             label = { Text(method.name.replace("_", " "), fontSize = 11.sp) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = BrandPrimary.copy(alpha = 0.15f),
-                                selectedLabelColor = BrandPrimary
+                                selectedContainerColor = BrandPrimary.copy(alpha = 0.2f),
+                                selectedLabelColor = NeonTeal
                             )
                         )
                     }
@@ -505,7 +590,7 @@ private fun RecordSettlementDialog(
                 OutlinedTextField(
                     value = refInput,
                     onValueChange = { refInput = it },
-                    label = { Text("Transaction TrxID / Ref (Optional)") },
+                    label = { Text("TrxID / Reference (Optional)") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -531,7 +616,7 @@ private fun RecordSettlementDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     )

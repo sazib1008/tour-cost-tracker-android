@@ -28,7 +28,7 @@ object NetworkModule {
     // Uses adb reverse tcp:8080 tcp:8080 for seamless USB / emulator connection
 //    private const val BASE_URL = "http://10.0.2.2:8080/"
 
-    private const val BASE_URL = "http://192.168.0.179:8080/" // আপনার Port সহ
+    private const val BASE_URL = "https://tour-cost-tracker-backend.onrender.com/" // আপনার Port সহ
 
 
     @Provides
