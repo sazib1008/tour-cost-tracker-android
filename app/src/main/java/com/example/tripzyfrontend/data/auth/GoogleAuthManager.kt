@@ -41,7 +41,7 @@ class GoogleAuthManager @Inject constructor(
     @ApplicationContext private val appContext: Context
 ) {
     companion object {
-        const val WEB_CLIENT_ID = "17160265661-kqeqo57434ck37vsfv9v0ovp0375klui.apps.googleusercontent.com"
+        const val WEB_CLIENT_ID = "153001589646-qttqv3vtbfa8tc40oq412aao7e7tbsau.apps.googleusercontent.com"
         private const val TAG = "GoogleAuthManager"
     }
 
