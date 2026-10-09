@@ -88,6 +88,9 @@ import com.example.tripzyfrontend.ui.theme.StatusSettledBg
 import com.example.tripzyfrontend.ui.theme.StatusSettledText
 import kotlinx.coroutines.flow.collectLatest
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettlementScreen(
@@ -100,6 +103,10 @@ fun SettlementScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     var showRecordDialog by remember { mutableStateOf(false) }
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.loadSettlements(isSilent = true)
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.snackbarEvent.collectLatest { msg ->

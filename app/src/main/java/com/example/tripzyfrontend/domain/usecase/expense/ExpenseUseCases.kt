@@ -9,6 +9,7 @@ import javax.inject.Inject
 class GetTourExpensesUseCase @Inject constructor(
     private val expenseRepository: ExpenseRepository
 ) {
+    fun getFlow(tourId: String) = expenseRepository.getTourExpensesFlow(tourId)
     suspend operator fun invoke(tourId: String): Result<List<Expense>> = expenseRepository.getTourExpenses(tourId)
 }
 

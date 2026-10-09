@@ -71,6 +71,9 @@ import com.example.tripzyfrontend.ui.theme.BrandPrimary
 import com.example.tripzyfrontend.ui.theme.StatusArchivedBg
 import com.example.tripzyfrontend.ui.theme.StatusArchivedText
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TourDashboardScreen(
@@ -81,6 +84,10 @@ fun TourDashboardScreen(
     val uiState by viewModel.uiState.collectAsState()
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.loadDashboard(isSilent = true)
+    }
 
     Scaffold(
         topBar = {

@@ -10,6 +10,7 @@ import com.example.tripzyfrontend.domain.model.TourStatus
 import com.example.tripzyfrontend.domain.usecase.expense.GetTourExpensesUseCase
 import com.example.tripzyfrontend.domain.usecase.tour.GetTourDetailsUseCase
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -113,5 +114,42 @@ class ExpensesViewModelTest {
         val sharedState = viewModel.uiState.value as ExpensesUiState.Success
         assertEquals(1, sharedState.filteredExpenses.size)
         assertEquals("Resort Booking", sharedState.filteredExpenses[0].title)
+    }
+
+    @Test
+    fun `expense flow emission updates uiState reactively`() = runTest {
+        val expensesFlow = kotlinx.coroutines.flow.MutableStateFlow<List<Expense>?>(null)
+        every { getTourExpensesUseCase.getFlow("t1") } returns expensesFlow
+        coEvery { getTourDetailsUseCase("t1") } returns Result.success(tour)
+        coEvery { getTourExpensesUseCase("t1") } returns Result.success(emptyList())
+
+        val savedStateHandle = SavedStateHandle(mapOf("tourId" to "t1"))
+        val viewModel = ExpensesViewModel(getTourExpensesUseCase, getTourDetailsUseCase, savedStateHandle)
+        advanceUntilIdle()
+
+        val newExpense = Expense(
+            id = "e99",
+            tourId = "t1",
+            title = "Lunch at Diner",
+            description = null,
+            amount = Money(50000L, "BDT"),
+            category = ExpenseCategory.FOOD,
+            splitType = SplitType.EQUAL,
+            isPersonal = false,
+            expenseDate = "2026-10-09",
+            payments = emptyList(),
+            allocations = emptyList(),
+            createdBy = "u1",
+            createdAt = "2026-10-09",
+            receiptUrl = null
+        )
+        expensesFlow.value = listOf(newExpense)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state is ExpensesUiState.Success)
+        val success = state as ExpensesUiState.Success
+        assertEquals(1, success.expenses.size)
+        assertEquals("Lunch at Diner", success.expenses[0].title)
     }
 }

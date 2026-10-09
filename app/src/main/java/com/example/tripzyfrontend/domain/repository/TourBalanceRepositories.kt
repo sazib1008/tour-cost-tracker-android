@@ -5,7 +5,10 @@ import com.example.tripzyfrontend.domain.model.TourDashboardMetrics
 import com.example.tripzyfrontend.domain.model.TourDetail
 import com.example.tripzyfrontend.domain.model.TourSummary
 
+import kotlinx.coroutines.flow.StateFlow
+
 interface TourRepository {
+    val toursFlow: StateFlow<List<TourSummary>?>
     suspend fun getMyTours(): Result<List<TourSummary>>
     suspend fun createTour(title: String, description: String?, baseCurrency: String): Result<TourDetail>
     suspend fun getTourDetails(tourId: String): Result<TourDetail>

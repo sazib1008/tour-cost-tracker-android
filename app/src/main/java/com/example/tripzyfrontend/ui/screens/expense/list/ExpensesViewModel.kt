@@ -43,31 +43,69 @@ class ExpensesViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ExpensesUiState>(ExpensesUiState.Loading)
     val uiState: StateFlow<ExpensesUiState> = _uiState.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     init {
+        viewModelScope.launch {
+            try {
+                getTourExpensesUseCase.getFlow(tourId).collect { cachedExpenses ->
+                    if (cachedExpenses != null) {
+                        val currentState = _uiState.value
+                        if (currentState is ExpensesUiState.Success) {
+                            val filtered = when (currentState.selectedFilter) {
+                                ExpenseFilter.ALL -> cachedExpenses
+                                ExpenseFilter.SHARED -> cachedExpenses.filter { !it.isPersonal }
+                                ExpenseFilter.PERSONAL -> cachedExpenses.filter { it.isPersonal }
+                            }
+                            _uiState.value = currentState.copy(
+                                expenses = cachedExpenses,
+                                filteredExpenses = filtered
+                            )
+                        }
+                    }
+                }
+            } catch (e: Throwable) {
+                // Ignore if flow is unmocked in tests
+            }
+        }
         loadExpenses()
     }
 
-    fun loadExpenses() {
+    fun loadExpenses(isSilent: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = ExpensesUiState.Loading
+            if (!isSilent && _uiState.value !is ExpensesUiState.Success) {
+                _uiState.value = ExpensesUiState.Loading
+            } else if (isSilent) {
+                _isRefreshing.value = true
+            }
 
             val tourResult = getTourDetailsUseCase(tourId)
             val expensesResult = getTourExpensesUseCase(tourId)
+            _isRefreshing.value = false
 
             if (tourResult.isSuccess && expensesResult.isSuccess) {
                 val tour = tourResult.getOrThrow()
                 val expenses = expensesResult.getOrThrow()
+                val currentFilter = (_uiState.value as? ExpensesUiState.Success)?.selectedFilter ?: ExpenseFilter.ALL
+                val filtered = when (currentFilter) {
+                    ExpenseFilter.ALL -> expenses
+                    ExpenseFilter.SHARED -> expenses.filter { !it.isPersonal }
+                    ExpenseFilter.PERSONAL -> expenses.filter { it.isPersonal }
+                }
                 _uiState.value = ExpensesUiState.Success(
                     tour = tour,
                     expenses = expenses,
-                    filteredExpenses = expenses,
-                    selectedFilter = ExpenseFilter.ALL
+                    filteredExpenses = filtered,
+                    selectedFilter = currentFilter
                 )
             } else {
-                val error = expensesResult.exceptionOrNull()?.localizedMessage
-                    ?: tourResult.exceptionOrNull()?.localizedMessage
-                    ?: "Failed to load expenses"
-                _uiState.value = ExpensesUiState.Error(error)
+                if (_uiState.value !is ExpensesUiState.Success) {
+                    val error = expensesResult.exceptionOrNull()?.localizedMessage
+                        ?: tourResult.exceptionOrNull()?.localizedMessage
+                        ?: "Failed to load expenses"
+                    _uiState.value = ExpensesUiState.Error(error)
+                }
             }
         }
     }

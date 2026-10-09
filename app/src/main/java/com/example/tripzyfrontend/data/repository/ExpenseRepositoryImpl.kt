@@ -14,6 +14,10 @@ import com.example.tripzyfrontend.domain.model.ExpensePayment
 import com.example.tripzyfrontend.domain.model.Money
 import com.example.tripzyfrontend.domain.model.SplitType
 import com.example.tripzyfrontend.domain.repository.ExpenseRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,11 +26,18 @@ class ExpenseRepositoryImpl @Inject constructor(
     private val expenseApi: ExpenseApi
 ) : ExpenseRepository {
 
+    private val _tourExpensesFlows = ConcurrentHashMap<String, MutableStateFlow<List<Expense>?>>()
+
+    override fun getTourExpensesFlow(tourId: String): StateFlow<List<Expense>?> {
+        return _tourExpensesFlows.getOrPut(tourId) { MutableStateFlow(null) }.asStateFlow()
+    }
+
     override suspend fun getTourExpenses(tourId: String): Result<List<Expense>> {
         return try {
             val response = expenseApi.getTourExpenses(tourId)
             if (response.isSuccessful && response.body()?.data != null) {
                 val expenses = response.body()!!.data!!.map { it.toDomain() }
+                _tourExpensesFlows.getOrPut(tourId) { MutableStateFlow(null) }.value = expenses
                 Result.success(expenses)
             } else {
                 Result.failure(Exception(response.errorBody()?.string() ?: "Failed to fetch expenses"))
@@ -84,7 +95,11 @@ class ExpenseRepositoryImpl @Inject constructor(
             )
             val response = expenseApi.createExpense(tourId, idempotencyKey, request)
             if (response.isSuccessful && response.body()?.data != null) {
-                Result.success(response.body()!!.data!!.toDomain())
+                val created = response.body()!!.data!!.toDomain()
+                val flow = _tourExpensesFlows.getOrPut(tourId) { MutableStateFlow(null) }
+                val current = flow.value ?: emptyList()
+                flow.value = listOf(created) + current.filter { it.id != created.id }
+                Result.success(created)
             } else {
                 Result.failure(Exception(response.errorBody()?.string() ?: "Failed to create expense"))
             }

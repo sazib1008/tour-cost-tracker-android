@@ -7,9 +7,12 @@ import com.example.tripzyfrontend.domain.repository.BalanceRepository
 import com.example.tripzyfrontend.domain.repository.TourRepository
 import javax.inject.Inject
 
+import kotlinx.coroutines.flow.StateFlow
+
 class GetMyToursUseCase @Inject constructor(
     private val tourRepository: TourRepository
 ) {
+    val toursFlow: StateFlow<List<TourSummary>?> get() = tourRepository.toursFlow
     suspend operator fun invoke(): Result<List<TourSummary>> = tourRepository.getMyTours()
 }
 

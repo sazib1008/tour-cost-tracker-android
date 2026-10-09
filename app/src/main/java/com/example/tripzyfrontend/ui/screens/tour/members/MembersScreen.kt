@@ -82,6 +82,9 @@ import com.example.tripzyfrontend.ui.theme.StatusArchivedBg
 import com.example.tripzyfrontend.ui.theme.StatusArchivedText
 import kotlinx.coroutines.flow.collectLatest
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MembersScreen(
@@ -100,6 +103,10 @@ fun MembersScreen(
     var searchQuery by remember { mutableStateOf("") }
 
     var memberToRemove by remember { mutableStateOf<TourMember?>(null) }
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.loadMembers(isSilent = true)
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.snackbarEvent.collectLatest { msg ->

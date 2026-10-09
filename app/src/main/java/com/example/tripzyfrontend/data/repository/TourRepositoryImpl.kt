@@ -11,6 +11,9 @@ import com.example.tripzyfrontend.domain.model.TourRole
 import com.example.tripzyfrontend.domain.model.TourStatus
 import com.example.tripzyfrontend.domain.model.TourSummary
 import com.example.tripzyfrontend.domain.repository.TourRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,11 +22,15 @@ class TourRepositoryImpl @Inject constructor(
     private val tourApi: TourApi
 ) : TourRepository {
 
+    private val _toursFlow = MutableStateFlow<List<TourSummary>?>(null)
+    override val toursFlow: StateFlow<List<TourSummary>?> = _toursFlow.asStateFlow()
+
     override suspend fun getMyTours(): Result<List<TourSummary>> {
         return try {
             val response = tourApi.getMyTours()
             if (response.isSuccessful && response.body()?.data != null) {
                 val summaries = response.body()!!.data!!.map { it.toDomain() }
+                _toursFlow.value = summaries
                 Result.success(summaries)
             } else {
                 Result.failure(Exception(response.errorBody()?.string() ?: "Failed to fetch tours"))
@@ -37,7 +44,20 @@ class TourRepositoryImpl @Inject constructor(
         return try {
             val response = tourApi.createTour(CreateTourRequest(title, description, baseCurrency))
             if (response.isSuccessful && response.body()?.data != null) {
-                Result.success(response.body()!!.data!!.toDomain())
+                val tourDetail = response.body()!!.data!!.toDomain()
+                val summary = TourSummary(
+                    id = tourDetail.id,
+                    title = tourDetail.title,
+                    description = tourDetail.description,
+                    status = tourDetail.status,
+                    inviteCode = tourDetail.inviteCode,
+                    baseCurrency = tourDetail.baseCurrency,
+                    memberCount = tourDetail.members.size,
+                    createdAt = tourDetail.createdAt
+                )
+                val current = _toursFlow.value ?: emptyList()
+                _toursFlow.value = listOf(summary) + current.filter { it.id != summary.id }
+                Result.success(tourDetail)
             } else {
                 Result.failure(Exception(response.errorBody()?.string() ?: "Failed to create tour"))
             }
@@ -63,7 +83,20 @@ class TourRepositoryImpl @Inject constructor(
         return try {
             val response = tourApi.joinTourByCode(JoinTourRequest(inviteCode))
             if (response.isSuccessful && response.body()?.data != null) {
-                Result.success(response.body()!!.data!!.toDomain())
+                val tourDetail = response.body()!!.data!!.toDomain()
+                val summary = TourSummary(
+                    id = tourDetail.id,
+                    title = tourDetail.title,
+                    description = tourDetail.description,
+                    status = tourDetail.status,
+                    inviteCode = tourDetail.inviteCode,
+                    baseCurrency = tourDetail.baseCurrency,
+                    memberCount = tourDetail.members.size,
+                    createdAt = tourDetail.createdAt
+                )
+                val current = _toursFlow.value ?: emptyList()
+                _toursFlow.value = listOf(summary) + current.filter { it.id != summary.id }
+                Result.success(tourDetail)
             } else {
                 Result.failure(Exception(response.errorBody()?.string() ?: "Failed to join tour with code '$inviteCode'"))
             }

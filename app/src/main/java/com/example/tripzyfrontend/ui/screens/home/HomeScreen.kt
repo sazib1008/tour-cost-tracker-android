@@ -73,6 +73,12 @@ import com.example.tripzyfrontend.ui.theme.MidnightSurfaceContainer
 import com.example.tripzyfrontend.ui.theme.NeonTeal
 import kotlinx.coroutines.flow.collectLatest
 
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -80,10 +86,15 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     var showJoinDialog by remember { mutableStateOf(false) }
     var joinCodeInput by remember { mutableStateOf("") }
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.loadTours(isSilent = true)
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.snackbarEvent.collectLatest { message ->
@@ -176,110 +187,116 @@ fun HomeScreen(
             }
 
             // Body content
-            when (val state = uiState) {
-                is HomeUiState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = BrandPrimary)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = { viewModel.loadTours(isSilent = true) },
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when (val state = uiState) {
+                    is HomeUiState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = BrandPrimary)
+                        }
                     }
-                }
-                is HomeUiState.Error -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = state.message,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Button(onClick = { viewModel.loadTours() }) {
-                                Icon(Icons.Default.Refresh, contentDescription = null)
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Retry")
+                    is HomeUiState.Error -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = state.message,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Button(onClick = { viewModel.loadTours() }) {
+                                    Icon(Icons.Default.Refresh, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Retry")
+                                }
                             }
                         }
                     }
-                }
-                is HomeUiState.Success -> {
-                    if (state.tours.isEmpty()) {
-                        EmptyToursView(
-                            onCreateClick = { navController.navigate(Screen.CreateTour.route) },
-                            onJoinClick = { showJoinDialog = true }
-                        )
-                    } else {
-                        val activeTours = state.tours.filter { it.status == TourStatus.ACTIVE }
-                        val featuredTour = activeTours.firstOrNull() ?: state.tours.first()
+                    is HomeUiState.Success -> {
+                        if (state.tours.isEmpty()) {
+                            EmptyToursView(
+                                onCreateClick = { navController.navigate(Screen.CreateTour.route) },
+                                onJoinClick = { showJoinDialog = true }
+                            )
+                        } else {
+                            val activeTours = state.tours.filter { it.status == TourStatus.ACTIVE }
+                            val featuredTour = activeTours.firstOrNull() ?: state.tours.first()
 
-                        LazyColumn(
-                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            // Quick Action Buttons Row
-                            item {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    QuickActionItem(
-                                        icon = Icons.Default.Add,
-                                        label = "New Tour",
-                                        onClick = { navController.navigate(Screen.CreateTour.route) }
+                            LazyColumn(
+                                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                // Quick Action Buttons Row
+                                item {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        QuickActionItem(
+                                            icon = Icons.Default.Add,
+                                            label = "New Tour",
+                                            onClick = { navController.navigate(Screen.CreateTour.route) }
+                                        )
+                                        QuickActionItem(
+                                            icon = Icons.Default.Key,
+                                            label = "Join Code",
+                                            onClick = { showJoinDialog = true }
+                                        )
+                                        QuickActionItem(
+                                            icon = Icons.Default.Receipt,
+                                            label = "Expenses",
+                                            onClick = { navController.navigate(Screen.TourDashboard.createRoute(featuredTour.id)) }
+                                        )
+                                        QuickActionItem(
+                                            icon = Icons.Default.QrCodeScanner,
+                                            label = "Scan Bill",
+                                            onClick = { /* Scan receipt */ }
+                                        )
+                                    }
+                                }
+
+                                // Active Tour Hero Card
+                                item {
+                                    Text(
+                                        text = "Active Trip",
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onBackground
                                     )
-                                    QuickActionItem(
-                                        icon = Icons.Default.Key,
-                                        label = "Join Code",
-                                        onClick = { showJoinDialog = true }
-                                    )
-                                    QuickActionItem(
-                                        icon = Icons.Default.Receipt,
-                                        label = "Expenses",
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    ActiveTourHeroCard(
+                                        tour = featuredTour,
                                         onClick = { navController.navigate(Screen.TourDashboard.createRoute(featuredTour.id)) }
                                     )
-                                    QuickActionItem(
-                                        icon = Icons.Default.QrCodeScanner,
-                                        label = "Scan Bill",
-                                        onClick = { /* Scan receipt */ }
+                                }
+
+                                // All Tours List
+                                item {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "All Tours (${state.tours.size})",
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onBackground
                                     )
                                 }
-                            }
 
-                            // Active Tour Hero Card
-                            item {
-                                Text(
-                                    text = "Active Trip",
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                ActiveTourHeroCard(
-                                    tour = featuredTour,
-                                    onClick = { navController.navigate(Screen.TourDashboard.createRoute(featuredTour.id)) }
-                                )
-                            }
-
-                            // All Tours List
-                            item {
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "All Tours (${state.tours.size})",
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                            }
-
-                            items(state.tours, key = { it.id }) { tour ->
-                                TourGlassCard(
-                                    tour = tour,
-                                    onClick = { navController.navigate(Screen.TourDashboard.createRoute(tour.id)) }
-                                )
+                                items(state.tours, key = { it.id }) { tour ->
+                                    TourGlassCard(
+                                        tour = tour,
+                                        onClick = { navController.navigate(Screen.TourDashboard.createRoute(tour.id)) }
+                                    )
+                                }
                             }
                         }
                     }

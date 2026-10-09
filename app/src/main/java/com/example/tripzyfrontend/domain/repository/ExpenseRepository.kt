@@ -5,7 +5,10 @@ import com.example.tripzyfrontend.data.remote.dto.ExpenseCommentDto
 import com.example.tripzyfrontend.data.remote.dto.PaymentDto
 import com.example.tripzyfrontend.domain.model.Expense
 
+import kotlinx.coroutines.flow.StateFlow
+
 interface ExpenseRepository {
+    fun getTourExpensesFlow(tourId: String): StateFlow<List<Expense>?>
     suspend fun getTourExpenses(tourId: String): Result<List<Expense>>
     suspend fun getExpenseDetails(tourId: String, expenseId: String): Result<Expense>
     suspend fun createExpense(

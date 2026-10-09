@@ -72,6 +72,9 @@ import com.example.tripzyfrontend.ui.common.StatusBadge
 import com.example.tripzyfrontend.ui.theme.BrandPrimary
 import com.example.tripzyfrontend.ui.theme.StatusArchivedBg
 import com.example.tripzyfrontend.ui.theme.StatusArchivedText
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,6 +84,11 @@ fun ExpensesScreen(
     viewModel: ExpensesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.loadExpenses(isSilent = true)
+    }
 
     Scaffold(
         topBar = {
@@ -121,7 +129,14 @@ fun ExpensesScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        when (val state = uiState) {
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.loadExpenses(isSilent = true) },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (val state = uiState) {
             is ExpensesUiState.Loading -> {
                 Box(
                     modifier = Modifier
@@ -272,6 +287,7 @@ fun ExpensesScreen(
             }
         }
     }
+}
 }
 
 @Composable

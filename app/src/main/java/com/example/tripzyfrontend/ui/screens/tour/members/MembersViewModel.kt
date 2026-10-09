@@ -54,9 +54,11 @@ class MembersViewModel @Inject constructor(
         loadMembers()
     }
 
-    fun loadMembers() {
+    fun loadMembers(isSilent: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = MembersUiState.Loading
+            if (!isSilent && _uiState.value !is MembersUiState.Success) {
+                _uiState.value = MembersUiState.Loading
+            }
             val currentUserId = checkSessionUseCase.getCurrentUser().first()?.id
 
             getTourDetailsUseCase(tourId)
@@ -72,7 +74,9 @@ class MembersViewModel @Inject constructor(
                     )
                 }
                 .onFailure { error ->
-                    _uiState.value = MembersUiState.Error(error.localizedMessage ?: "Failed to load members")
+                    if (_uiState.value !is MembersUiState.Success) {
+                        _uiState.value = MembersUiState.Error(error.localizedMessage ?: "Failed to load members")
+                    }
                 }
         }
     }

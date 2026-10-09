@@ -67,4 +67,32 @@ class HomeViewModelTest {
         assertEquals(1, (state as HomeUiState.Success).tours.size)
         assertEquals("Cox's Bazar", (state as HomeUiState.Success).tours[0].title)
     }
+
+    @Test
+    fun `toursFlow emission updates uiState reactively`() = runTest {
+        val toursFlow = kotlinx.coroutines.flow.MutableStateFlow<List<TourSummary>?>(null)
+        every { getMyToursUseCase.toursFlow } returns toursFlow
+        coEvery { getMyToursUseCase() } returns Result.success(emptyList())
+
+        viewModel = HomeViewModel(getMyToursUseCase, joinTourUseCase, checkSessionUseCase)
+        advanceUntilIdle()
+
+        val newTour = TourSummary(
+            id = "new-tour-id",
+            title = "Sylhet Trip",
+            description = null,
+            status = TourStatus.ACTIVE,
+            inviteCode = "SYL123",
+            baseCurrency = "BDT",
+            memberCount = 1,
+            createdAt = "2026-10-09"
+        )
+        toursFlow.value = listOf(newTour)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state is HomeUiState.Success)
+        assertEquals(1, (state as HomeUiState.Success).tours.size)
+        assertEquals("Sylhet Trip", (state as HomeUiState.Success).tours[0].title)
+    }
 }

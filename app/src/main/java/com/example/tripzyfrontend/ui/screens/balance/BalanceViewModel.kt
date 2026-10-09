@@ -39,9 +39,11 @@ class BalanceViewModel @Inject constructor(
         loadBalances()
     }
 
-    fun loadBalances() {
+    fun loadBalances(isSilent: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = BalanceUiState.Loading
+            if (!isSilent && _uiState.value !is BalanceUiState.Success) {
+                _uiState.value = BalanceUiState.Loading
+            }
 
             val tourResult = getTourDetailsUseCase(tourId)
             val balanceResult = getTourBalanceUseCase(tourId)
@@ -52,10 +54,12 @@ class BalanceViewModel @Inject constructor(
                     balance = balanceResult.getOrThrow()
                 )
             } else {
-                val error = balanceResult.exceptionOrNull()?.localizedMessage
-                    ?: tourResult.exceptionOrNull()?.localizedMessage
-                    ?: "Failed to load tour balances"
-                _uiState.value = BalanceUiState.Error(error)
+                if (_uiState.value !is BalanceUiState.Success) {
+                    val error = balanceResult.exceptionOrNull()?.localizedMessage
+                        ?: tourResult.exceptionOrNull()?.localizedMessage
+                        ?: "Failed to load tour balances"
+                    _uiState.value = BalanceUiState.Error(error)
+                }
             }
         }
     }

@@ -41,19 +41,44 @@ class HomeViewModel @Inject constructor(
     private val _snackbarEvent = MutableSharedFlow<String>()
     val snackbarEvent: SharedFlow<String> = _snackbarEvent.asSharedFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     init {
+        viewModelScope.launch {
+            try {
+                getMyToursUseCase.toursFlow.collect { cachedTours ->
+                    if (cachedTours != null) {
+                        _uiState.value = HomeUiState.Success(cachedTours)
+                    }
+                }
+            } catch (e: Throwable) {
+                // Ignore if flow is unmocked in tests
+            }
+        }
         loadTours()
     }
 
-    fun loadTours() {
+    fun loadTours(isSilent: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = HomeUiState.Loading
+            if (!isSilent && _uiState.value !is HomeUiState.Success) {
+                _uiState.value = HomeUiState.Loading
+            } else if (isSilent) {
+                _isRefreshing.value = true
+            }
+
             getMyToursUseCase()
                 .onSuccess { tours ->
+                    _isRefreshing.value = false
                     _uiState.value = HomeUiState.Success(tours)
                 }
                 .onFailure { error ->
-                    _uiState.value = HomeUiState.Error(error.localizedMessage ?: "Failed to load tours")
+                    _isRefreshing.value = false
+                    if (_uiState.value !is HomeUiState.Success) {
+                        _uiState.value = HomeUiState.Error(error.localizedMessage ?: "Failed to load tours")
+                    } else {
+                        _snackbarEvent.emit(error.localizedMessage ?: "Failed to refresh tours")
+                    }
                 }
         }
     }

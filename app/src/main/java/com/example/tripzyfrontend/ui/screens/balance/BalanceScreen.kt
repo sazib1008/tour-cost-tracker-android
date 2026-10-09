@@ -64,6 +64,9 @@ import com.example.tripzyfrontend.ui.theme.StatusArchivedText
 import com.example.tripzyfrontend.ui.theme.StatusSettledBg
 import com.example.tripzyfrontend.ui.theme.StatusSettledText
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BalanceScreen(
@@ -72,6 +75,10 @@ fun BalanceScreen(
     viewModel: BalanceViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.loadBalances(isSilent = true)
+    }
 
     Scaffold(
         topBar = {

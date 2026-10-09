@@ -58,9 +58,11 @@ class SettlementViewModel @Inject constructor(
         loadSettlements()
     }
 
-    fun loadSettlements() {
+    fun loadSettlements(isSilent: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = SettlementUiState.Loading
+            if (!isSilent && _uiState.value !is SettlementUiState.Success) {
+                _uiState.value = SettlementUiState.Loading
+            }
 
             val tourResult = getTourDetailsUseCase(tourId)
             val settlementsResult = getSettlementsUseCase(tourId)
@@ -75,10 +77,12 @@ class SettlementViewModel @Inject constructor(
                     members = tour.members
                 )
             } else {
-                val error = settlementsResult.exceptionOrNull()?.localizedMessage
-                    ?: tourResult.exceptionOrNull()?.localizedMessage
-                    ?: "Failed to load settlements"
-                _uiState.value = SettlementUiState.Error(error)
+                if (_uiState.value !is SettlementUiState.Success) {
+                    val error = settlementsResult.exceptionOrNull()?.localizedMessage
+                        ?: tourResult.exceptionOrNull()?.localizedMessage
+                        ?: "Failed to load settlements"
+                    _uiState.value = SettlementUiState.Error(error)
+                }
             }
         }
     }

@@ -39,9 +39,11 @@ class TourDashboardViewModel @Inject constructor(
         loadDashboard()
     }
 
-    fun loadDashboard() {
+    fun loadDashboard(isSilent: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = TourDashboardUiState.Loading
+            if (!isSilent && _uiState.value !is TourDashboardUiState.Success) {
+                _uiState.value = TourDashboardUiState.Loading
+            }
 
             val tourResult = getTourDetailsUseCase(tourId)
             val metricsResult = getTourDashboardMetricsUseCase(tourId)
@@ -52,10 +54,12 @@ class TourDashboardViewModel @Inject constructor(
                     metrics = metricsResult.getOrThrow()
                 )
             } else {
-                val errorMsg = tourResult.exceptionOrNull()?.localizedMessage
-                    ?: metricsResult.exceptionOrNull()?.localizedMessage
-                    ?: "Failed to load dashboard"
-                _uiState.value = TourDashboardUiState.Error(errorMsg)
+                if (_uiState.value !is TourDashboardUiState.Success) {
+                    val errorMsg = tourResult.exceptionOrNull()?.localizedMessage
+                        ?: metricsResult.exceptionOrNull()?.localizedMessage
+                        ?: "Failed to load dashboard"
+                    _uiState.value = TourDashboardUiState.Error(errorMsg)
+                }
             }
         }
     }
